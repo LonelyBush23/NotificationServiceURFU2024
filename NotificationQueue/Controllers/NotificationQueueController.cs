@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using NotificationQueue.Application.Features.Notification;
 
 namespace NotificationQueue.Controllers
 {
@@ -6,10 +8,26 @@ namespace NotificationQueue.Controllers
     [Route("/queue")]
     public class NotificationQueueController : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> AddToQueue([FromBody] object requestBody)
+        private readonly ILogger<NotificationQueueController> _logger;
+        private readonly IMediator _mediator;
+
+
+        public NotificationQueueController(ILogger<NotificationQueueController> logger, IMediator mediator)
         {
-            return StatusCode(200, requestBody);
+            _logger = logger;
+            _mediator = mediator;
         }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddToQueue([FromBody] SendNotificationCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.IsSuccessfull)
+            {
+                return BadRequest(result.GetErrors().FirstOrDefault());
+            }
+            return Ok();
+        }
+
     }
 }

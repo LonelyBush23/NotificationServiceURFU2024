@@ -1,3 +1,8 @@
+using NotificationQueue.Domain.Repositories;
+using NotificationQueue.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using NotificationQueue.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +11,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<Program>();
+});
+
+builder.Services.AddDbContext<ServerDbContext>(config =>
+{
+    config.UseNpgsql(builder.Configuration.GetConnectionString("Server"));
+    config.EnableSensitiveDataLogging();
+});
+
+builder.Services.RegisterRepository<INotificationRepository, NotificationRepository>();
 
 var app = builder.Build();
 
@@ -16,10 +33,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//app.UseHttpsRedirection();
+
+//app.UseAuthorization();
+
+//app.MapControllers();
+
+//app.Run();
+app.UseRouting();
+app.UseEndpoints(x =>
+{
+    x.MapControllers();
+});
+
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
 app.Run();
