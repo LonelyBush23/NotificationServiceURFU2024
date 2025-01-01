@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # Порт AMQP
+      - "15672:15672" # Веб-интерфейс
+    environment:
+      RABBITMQ_DEFAULT_USER: admin  # Установите пользователя
+      RABBITMQ_DEFAULT_PASS: admin  # Установите пароль
+
+  # apigateway:
+  #   build:
+  #     context: ./ApiGateway
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "7000:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #   depends_on:
+  #     - notificationqueue
+  # notificationqueue:
+  #   build:
+  #     context: ./NotificationQueue
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5001:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
