@@ -2,6 +2,7 @@
 using NotificationQueue.Application.Infrastructure.Cqs;
 using NotificationQueue.Application.Result;
 using NotificationQueue.Domain.Enums;
+using NotificationQueue.Infrastructure.RabbitMQ;
 
 namespace NotificationQueue.Application.Features.Notification
 {
@@ -19,12 +20,12 @@ namespace NotificationQueue.Application.Features.Notification
 
     public sealed class SendNotificationCommandHandler : CommandHandler<SendNotificationCommand>
     {
-        //private readonly IMessageQueue _messageQueue;
+        private readonly IMessageQueue _messageQueue;
 
-        //public SendNotificationCommandHandler(IMessageQueue messageQueue)
-        //{
-        //    _messageQueue = messageQueue;
-        //}
+        public SendNotificationCommandHandler(IMessageQueue messageQueue)
+        {
+            _messageQueue = messageQueue;
+        }
 
         public override async Task<Result.Result> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
         {
@@ -32,8 +33,7 @@ namespace NotificationQueue.Application.Features.Notification
             //{
             //    return Error(new ValidationError() { Data = { { nameof(request.Receiver), "Empty value" } } });
             //}
-            return Success();
-            //return await _messageQueue.PublishAsync(request, cancellationToken);
+            return await _messageQueue.PublishAsync(request, cancellationToken);
 
         }
     }

@@ -12,15 +12,15 @@ namespace NotificationQueue.Infrastructure.RabbitMQ
             _connectionFactory = connectionFactory;
         }
 
-        public void Publish(string exchange, string routingKey, string message)
-        {
-            using var connection = _connectionFactory.CreateConnection();
-            using var channel = connection.CreateModel();
+        //public void Publish(string exchange, string routingKey, string message)
+        //{
+        //    using var connection = _connectionFactory.CreateConnection();
+        //    using var channel = connection.CreateModel();
 
-            channel.ExchangeDeclare(exchange, ExchangeType.Direct);
+        //    channel.ExchangeDeclare(exchange, ExchangeType.Direct);
 
-            var body = Encoding.UTF8.GetBytes(message);
-            channel.BasicPublish(exchange, routingKey, null, body);
-        }
+        //    var body = Encoding.UTF8.GetBytes(message);
+        //    channel.BasicPublish(exchange, routingKey, null, body);
+        //}
     }
 }

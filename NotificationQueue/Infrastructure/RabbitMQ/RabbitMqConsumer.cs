@@ -13,23 +13,23 @@ namespace NotificationQueue.Infrastructure.RabbitMQ
             _connectionFactory = connectionFactory;
         }
 
-        public void Consume(string queue, Func<string, Task> onMessageReceived)
-        {
-            using var connection = _connectionFactory.CreateConnection();
-            using var channel = connection.CreateModel();
+        //public void Consume(string queue, Func<string, Task> onMessageReceived)
+        //{
+        //    using var connection = _connectionFactory.CreateConnection();
+        //    using var channel = connection.CreateModel();
 
-            channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        //    channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-            var consumer = new AsyncEventingBasicConsumer(channel);
-            consumer.Received += async (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
+        //    var consumer = new AsyncEventingBasicConsumer(channel);
+        //    consumer.Received += async (model, ea) =>
+        //    {
+        //        var body = ea.Body.ToArray();
+        //        var message = Encoding.UTF8.GetString(body);
 
-                await onMessageReceived(message);
-            };
+        //        await onMessageReceived(message);
+        //    };
 
-            channel.BasicConsume(queue, autoAck: true, consumer);
-        }
+        //    channel.BasicConsume(queue, autoAck: true, consumer);
+        //}
     }
 }
