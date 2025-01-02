@@ -1,26 +1,54 @@
-﻿using RabbitMQ.Client;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json;
+using NotificationQueue.Application.Features.Notification;
+using NotificationQueue.Domain.Enums;
+using NotificationQueue.Infrastructure.RabbitMQ.Base;
+using RabbitMQ.Client;
 
-namespace NotificationQueue.Infrastructure.RabbitMQ
+namespace NotificationQueue.Infrastructure.RabbitMQ;
+
+public class RabbitMqPublisher : IRabbitMqPublisher
 {
-    public class RabbitMqPublisher
-    {
-        private readonly IConnectionFactory _connectionFactory;
+    private readonly IRabbitMQConnection _connection;
 
-        public RabbitMqPublisher(IConnectionFactory connectionFactory)
+    public RabbitMqPublisher(IRabbitMQConnection connection)
+    {
+        _connection = connection;
+    }
+
+    public async Task<bool> SendMessageAsync(SendNotificationCommand command, CancellationToken cancellationToken = default)
+    {
+        if (!Enum.IsDefined(typeof(NotificationChannel), command.Channel))
         {
-            _connectionFactory = connectionFactory;
+            throw new ArgumentException($"Invalid channel: {command.Channel}");
         }
 
-        //public void Publish(string exchange, string routingKey, string message)
-        //{
-        //    using var connection = _connectionFactory.CreateConnection();
-        //    using var channel = connection.CreateModel();
+        string queue = command.Channel.ToString();
 
-        //    channel.ExchangeDeclare(exchange, ExchangeType.Direct);
+        var message = JsonSerializer.Serialize(command);
+        return await SendMessageAsync(message, queue, cancellationToken);
+    }
 
-        //    var body = Encoding.UTF8.GetBytes(message);
-        //    channel.BasicPublish(exchange, routingKey, null, body);
-        //}
+    public async Task<bool> SendMessageAsync(string message, string queue, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var connection = await _connection.GetConnection(cancellationToken);
+            await using var channel = await connection.CreateChannelAsync(null, cancellationToken);
+            await channel.QueueDeclareAsync(queue: queue,
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                cancellationToken: cancellationToken);
+
+            var body = Encoding.UTF8.GetBytes(message);
+            await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

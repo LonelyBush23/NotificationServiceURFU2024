@@ -6,10 +6,10 @@ namespace NotificationQueue.Infrastructure.RabbitMQ
 {
     public class MessageQueue : IMessageQueue
     {
-        private readonly IRabbitMqService _rabbitMqService;
+        private readonly IRabbitMqPublisher _rabbitMqService;
         private readonly INotificationRepository _notificationRepository;
 
-        public MessageQueue(IRabbitMqService rabbitMqService, INotificationRepository notificationRepository)
+        public MessageQueue(IRabbitMqPublisher rabbitMqService, INotificationRepository notificationRepository)
         {
             _rabbitMqService = rabbitMqService;
             _notificationRepository = notificationRepository;

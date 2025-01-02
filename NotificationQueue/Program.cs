@@ -3,6 +3,7 @@ using NotificationQueue.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using NotificationQueue.Infrastructure.Repositories;
 using NotificationQueue.Infrastructure.RabbitMQ;
+using NotificationQueue.Infrastructure.RabbitMQ.Base;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,8 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
 });
 
 builder.Services.RegisterRepository<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
+builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
+builder.Services.AddScoped<IRabbitMQConnection, RabbitMQConnection>();
 builder.Services.AddScoped<IMessageQueue, MessageQueue>();
 
 var app = builder.Build();
