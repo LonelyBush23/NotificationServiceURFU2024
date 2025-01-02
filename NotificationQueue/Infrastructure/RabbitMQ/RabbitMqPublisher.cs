@@ -9,11 +9,11 @@ namespace NotificationQueue.Infrastructure.RabbitMQ;
 
 public class RabbitMqPublisher : IRabbitMqPublisher
 {
-    private readonly IRabbitMQConnection _connection;
+    private readonly IRabbitMQService _rabbitMQService;
 
-    public RabbitMqPublisher(IRabbitMQConnection connection)
+    public RabbitMqPublisher(IRabbitMQService rabbitMQService)
     {
-        _connection = connection;
+        _rabbitMQService = rabbitMQService;
     }
 
     public async Task<bool> SendMessageAsync(SendNotificationCommand command, CancellationToken cancellationToken = default)
@@ -33,14 +33,8 @@ public class RabbitMqPublisher : IRabbitMqPublisher
     {
         try
         {
-            var connection = await _connection.GetConnection(cancellationToken);
-            await using var channel = await connection.CreateChannelAsync(null, cancellationToken);
-            await channel.QueueDeclareAsync(queue: queue,
-                durable: false,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null,
-                cancellationToken: cancellationToken);
+            await using var channel = await _rabbitMQService.GetChannel(cancellationToken);
+            await _rabbitMQService.DeclareQueue(channel, queue, cancellationToken);
 
             var body = Encoding.UTF8.GetBytes(message);
             await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
