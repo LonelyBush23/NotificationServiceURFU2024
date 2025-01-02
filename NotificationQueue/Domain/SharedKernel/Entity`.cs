@@ -2,6 +2,6 @@
 {
     public abstract class Entity<TKey> : Entity
     {
-        public required TKey Id { get; set; }
+        public TKey Id { get; set; }
     }
 }

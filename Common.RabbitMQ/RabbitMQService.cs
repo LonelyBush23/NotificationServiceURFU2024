@@ -81,6 +81,12 @@ namespace Common.RabbitMQ
             }
         }
 
+        public async Task PublishMessageAsync(string queue, byte[] body, CancellationToken cancellationToken) {
+            var channel = await GetChannelAsync(cancellationToken);
+            await DeclareQueueAsync(queue, channel, cancellationToken);
+            await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
+        }
+
         public async Task DisposeAsync()
         {
             if (_channel != null && _channel.IsOpen)

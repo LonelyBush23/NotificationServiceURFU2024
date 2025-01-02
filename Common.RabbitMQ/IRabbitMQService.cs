@@ -10,6 +10,8 @@ namespace Common.RabbitMQ
 
         Task SubscribeToQueueAsync(string queue, Func<string, Task> messageHandler, CancellationToken cancellationToken = default);
 
+        Task PublishMessageAsync(string queue, byte[] body, CancellationToken cancellationToken);
+
         Task DisposeAsync();
     }
 }

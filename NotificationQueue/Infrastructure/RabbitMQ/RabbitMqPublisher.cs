@@ -1,9 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Common.RabbitMQ;
 using NotificationQueue.Application.Features.Notification;
 using NotificationQueue.Domain.Enums;
-using NotificationQueue.Infrastructure.RabbitMQ.Base;
-using RabbitMQ.Client;
 
 namespace NotificationQueue.Infrastructure.RabbitMQ;
 
@@ -33,11 +32,8 @@ public class RabbitMqPublisher : IRabbitMqPublisher
     {
         try
         {
-            await using var channel = await _rabbitMQService.GetChannel(cancellationToken);
-            await _rabbitMQService.DeclareQueue(channel, queue, cancellationToken);
-
             var body = Encoding.UTF8.GetBytes(message);
-            await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
+            await _rabbitMQService.PublishMessageAsync(queue, body, cancellationToken);
             return true;
         }
         catch
