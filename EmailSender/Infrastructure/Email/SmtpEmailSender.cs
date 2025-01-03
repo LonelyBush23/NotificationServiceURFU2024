@@ -10,16 +10,16 @@ public class SmtpEmailSender : IEmailSender
     private readonly SmtpClient _smtpClient;
     private readonly string _senderEmail;
 
-    public SmtpEmailSender(IConfiguration configuration)
+    public SmtpEmailSender()
     {
-        var host = configuration["SMTP:Host"];
-        var port = configuration.GetValue<int>("SMTP:Post");
-        var username = configuration["SMTP:Username"];
-        var password = configuration["SMTP:Password"];
+        var host = Environment.GetEnvironmentVariable("SMTP_HOST");
+        int port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "0");
+        var username = Environment.GetEnvironmentVariable("SMTP_USERNAME");
+        var password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 
         if (host == null || username == null || password == null)
         {
-            throw new ArgumentNullException(nameof(configuration), "SMTP credentials is not found in configuration file");
+            throw new ArgumentNullException("SMTP credentials is not found in configuration file");
         }
 
         _senderEmail = username;
