@@ -4,12 +4,12 @@ public class EmailMessage
 {
     public EmailMessage(string subject, string body, string recipientEmail)
     {
-        Subject = subject;
-        Body = body;
-        RecipientEmail = recipientEmail;
+        this.subject = subject;
+        this.body = body;
+        this.recipientEmail = recipientEmail;
     }
 
-    public string Subject { get; set; }
-    public string Body { get; set; }
-    public string RecipientEmail { get; set; }
+    public string subject { get; set; }
+    public string body { get; set; }
+    public string recipientEmail { get; set; }
 }

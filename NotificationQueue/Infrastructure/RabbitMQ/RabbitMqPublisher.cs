@@ -23,10 +23,27 @@ public class RabbitMqPublisher : IRabbitMqPublisher
             throw new ArgumentException($"Invalid channel: {notification.Channel}");
         }
 
-        string routingKey = notification.Channel.ToString();
-        var message = JsonSerializer.Serialize(notification);
-        return await SendMessageAsync(message, routingKey, cancellationToken);
+        string message;
 
+        if (notification.Channel == NotificationChannel.Email)
+        {
+            message = JsonSerializer.Serialize(
+                new { subject = notification.Message, body = notification.Message, recipientEmail = notification.Receiver }
+            );
+        }
+        else if (notification.Channel == NotificationChannel.Telegram) {
+            message = JsonSerializer.Serialize(
+                new { chatId = notification.Receiver, text = notification.Message }
+            );
+        }
+        else
+        {
+            message = JsonSerializer.Serialize(notification);
+
+        }
+
+        string routingKey = notification.Channel.ToString();
+        return await SendMessageAsync(message, routingKey, cancellationToken);
     }
 
     public async Task<bool> SendMessageAsync(string message, string routingKey, CancellationToken cancellationToken = default)

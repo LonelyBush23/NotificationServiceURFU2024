@@ -15,7 +15,8 @@ namespace Common.RabbitMQ
         {
             _factory = new ConnectionFactory()
             {
-                HostName = "localhost",
+                HostName = "rabbitmq",
+                Port = 5672,
                 UserName = "admin",
                 Password = "admin"
             };
@@ -120,7 +121,6 @@ namespace Common.RabbitMQ
                     try
                     {
                         await messageHandler(message);
-                        throw new Exception();
                         await channel.BasicAckAsync(ea.DeliveryTag, false);
                     }
                     catch (Exception ex)
@@ -133,7 +133,6 @@ namespace Common.RabbitMQ
                         {
                             await channel.BasicNackAsync(ea.DeliveryTag, false, false);
                         }
-
                     }
                 };
 

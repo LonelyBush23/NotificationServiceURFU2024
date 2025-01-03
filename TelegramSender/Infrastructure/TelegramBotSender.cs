@@ -20,6 +20,6 @@ public class TelegramBotSender : ITelegramSender
 
     public async Task SendMessageAsync(TelegramMessage message)
     {
-        await _botClient.SendMessage(message.ChatId, message.Text);
+        await _botClient.SendMessage(message.chatId, message.text);
     }
 }

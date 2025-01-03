@@ -33,7 +33,7 @@ public class SmtpEmailSender : IEmailSender
 
     public async Task SendAsync(EmailMessage message)
     {
-        var mailMessage = new MailMessage(_senderEmail, message.RecipientEmail, message.Subject, message.Body);
+        var mailMessage = new MailMessage(_senderEmail, message.recipientEmail, message.subject, message.body);
         await _smtpClient.SendMailAsync(mailMessage);
     }
 }

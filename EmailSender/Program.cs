@@ -1,6 +1,8 @@
+using Common.RabbitMQ;
 using EmailSender.Application;
 using EmailSender.Domain;
 using EmailSender.Infrastructure.Email;
+using EmailSender.Infrastructure.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,8 @@ DotNetEnv.Env.Load();
 
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddHostedService<RabbitMQListener>();
 
 
 var app = builder.Build();

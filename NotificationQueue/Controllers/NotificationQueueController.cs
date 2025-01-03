@@ -28,6 +28,5 @@ namespace NotificationQueue.Controllers
             }
             return Ok();
         }
-
     }
 }

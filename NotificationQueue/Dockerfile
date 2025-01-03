@@ -7,12 +7,14 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Shared", "Shared/"]
+
+
+COPY ["Common.RabbitMQ/Common.RabbitMQ.csproj", "Common.RabbitMQ/"]
+
 COPY ["NotificationQueue/NotificationQueue.csproj", "NotificationQueue/"]
 RUN dotnet restore "./NotificationQueue/NotificationQueue.csproj"
 COPY . .
