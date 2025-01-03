@@ -35,7 +35,7 @@ public class RabbitMqPublisher : IRabbitMqPublisher
         {
             var body = Encoding.UTF8.GetBytes(message);
 
-            await _rabbitMQService.PublishMessageAsync(RabbitMQConstants.NotificationExchange, routingKey, body, cancellationToken);
+            await _rabbitMQService.PublishMessageAsync(RabbitMQConstants.NotificationExchange, routingKey, routingKey, body, cancellationToken);
 
             return true;
         }

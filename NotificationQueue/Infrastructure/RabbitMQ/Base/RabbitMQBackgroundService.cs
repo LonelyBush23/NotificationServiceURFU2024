@@ -17,12 +17,14 @@ public class RabbitMqBackgroundService : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        List<string> queues = Enum.GetNames(typeof(NotificationChannel)).ToList();
+        string[] queues = Enum.GetNames(typeof(NotificationChannel));
+
+        await _rabbitMQService.StartUp(RabbitMQConstants.NotificationExchange, queues, cancellationToken);
 
         var listeningTasks = queues.Select(queue =>
-            ListenToQueueWithRetriesAsync(queue, stoppingToken)
+            ListenToQueueWithRetriesAsync(queue, cancellationToken)
         );
 
         await Task.WhenAll(listeningTasks);

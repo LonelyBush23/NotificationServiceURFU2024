@@ -20,16 +20,6 @@ namespace Common.RabbitMQ
             };
         }
 
-        public async Task DeclareQueueAsync(string queue, IChannel channel, CancellationToken cancellationToken = default)
-        {
-            await channel.QueueDeclareAsync(queue: queue,
-                durable: false,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null,
-                cancellationToken: cancellationToken);
-        }
-
         public async Task<IChannel> GetChannelAsync(CancellationToken cancellationToken = default)
         {
             if (_connection == null || !_connection.IsOpen)
@@ -42,6 +32,24 @@ namespace Common.RabbitMQ
                 _channel = await _connection.CreateChannelAsync();
             }
             return _channel;
+        }
+
+        public async Task StartUp(string exchange, string[] queueNames, CancellationToken cancellationToken = default)
+        {
+            var channel = await GetChannelAsync(cancellationToken);
+            await channel.ExchangeDeclareAsync(exchange: exchange, type: "direct", durable: true, cancellationToken: cancellationToken);
+
+            foreach (string queue in queueNames)
+            {
+                await channel.QueueDeclareAsync(queue: queue,
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                cancellationToken: cancellationToken);
+
+                await channel.QueueBindAsync(queue: queue, exchange: exchange, routingKey: queue, cancellationToken: cancellationToken);
+            }
         }
 
 
@@ -79,26 +87,11 @@ namespace Common.RabbitMQ
             }
         }
 
-        public async Task PublishMessageAsync(string queue, byte[] body, CancellationToken cancellationToken = default) {
-            var channel = await GetChannelAsync(cancellationToken);
-            await DeclareQueueAsync(queue, channel, cancellationToken);
-            await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
-        }
 
-
-        public async Task PublishMessageAsync(string exchange, string routingKey, byte[] body, CancellationToken cancellationToken = default)
+        public async Task PublishMessageAsync(string exchange, string routingKey, string queueName, byte[] body, CancellationToken cancellationToken = default)
         {
             var channel = await GetChannelAsync(cancellationToken);
-            // Объявляем Exchange (если он не существует)
-            await channel.ExchangeDeclareAsync(exchange: exchange, type: "direct", durable: true);
-            // Создаем очередь (временное решение)
-            await DeclareQueueAsync(routingKey, channel, cancellationToken);
-            // Магия перенаправления
-            await channel.QueueBindAsync(queue: routingKey, exchange: exchange, routingKey: routingKey);
-
             await channel.BasicPublishAsync(exchange, routingKey, body, cancellationToken);
-
-            await Task.CompletedTask; // Условный асинхронный вызов
         }
 
 
