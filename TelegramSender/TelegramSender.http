@@ -1,0 +1,6 @@
+@TelegramSender_HostAddress = http://localhost:5242
+
+GET {{TelegramSender_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.RabbitMQ", "Common.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSender", "EmailSender\EmailSender.csproj", "{ED456747-B8FD-46E5-8F51-098D42B2040A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramSender", "TelegramSender\TelegramSender.csproj", "{F02072EC-A9B1-4DC9-886F-8A581484C3EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{ED456747-B8FD-46E5-8F51-098D42B2040A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED456747-B8FD-46E5-8F51-098D42B2040A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED456747-B8FD-46E5-8F51-098D42B2040A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F02072EC-A9B1-4DC9-886F-8A581484C3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F02072EC-A9B1-4DC9-886F-8A581484C3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F02072EC-A9B1-4DC9-886F-8A581484C3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F02072EC-A9B1-4DC9-886F-8A581484C3EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
