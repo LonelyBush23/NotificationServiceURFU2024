@@ -27,9 +27,12 @@ public class RabbitMqBackgroundService : BackgroundService
             ListenToQueueWithRetriesAsync(queue, cancellationToken)
         );
 
+        var dlxListeting = _rabbitMQService.SubsribeToDLX("DeathLetterQueue");
+
+        listeningTasks.Append(dlxListeting);
+
         await Task.WhenAll(listeningTasks);
     }
-
     private async Task ListenToQueueWithRetriesAsync(string queue, CancellationToken cancellationToken)
     {
         await _rabbitMQService.SubscribeToQueueAsync(

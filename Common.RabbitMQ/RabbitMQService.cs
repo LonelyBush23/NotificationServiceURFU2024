@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Common.RabbitMQ
@@ -37,7 +38,12 @@ namespace Common.RabbitMQ
         public async Task StartUp(string exchange, string[] queueNames, CancellationToken cancellationToken = default)
         {
             var channel = await GetChannelAsync(cancellationToken);
-            await channel.ExchangeDeclareAsync(exchange: exchange, type: "direct", durable: true, cancellationToken: cancellationToken);
+
+            await channel.ExchangeDeclareAsync(exchange: "dlx", type: ExchangeType.Fanout);
+            await channel.QueueDeclareAsync(queue: "DeadLetterQueue", durable: true, exclusive: false, autoDelete: false);
+            await channel.QueueBindAsync(queue: "DeadLetterQueue", exchange: "dlx", routingKey: "");
+
+            await channel.ExchangeDeclareAsync(exchange: exchange, type: ExchangeType.Direct, durable: true, cancellationToken: cancellationToken);
 
             foreach (string queue in queueNames)
             {
@@ -45,15 +51,60 @@ namespace Common.RabbitMQ
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
-                arguments: null,
+                arguments: new Dictionary<string, object?>
+            {
+                { "x-dead-letter-exchange", "dlx" },
+                { "x-message-ttl", 30000 }
+            },
                 cancellationToken: cancellationToken);
-
                 await channel.QueueBindAsync(queue: queue, exchange: exchange, routingKey: queue, cancellationToken: cancellationToken);
             }
         }
 
+        public async Task SubsribeToDLX(string dlxQueue)
+        {
+            try
+            {
+                var channel = await GetChannelAsync();
+                var consumer = new AsyncEventingBasicConsumer(channel);
 
-        public async Task SubscribeToQueueAsync(string queue, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
+                consumer.ReceivedAsync += async (model, ea) =>
+                {
+                    var body = ea.Body.ToArray();
+                    var headers = ea.BasicProperties.Headers;
+                    
+                    var exchange = headers["exchange"].ToString();
+                    var routingKey = headers["routing-keys"].ToString();
+                    var queue = headers["queue"].ToString();
+
+                    // Console.WriteLine($"Error processing message: {ex.Message}");
+
+                    Console.WriteLine($"Количество попыток: {GetRetryCound(ea.BasicProperties)}");
+
+                    Thread.Sleep(1000);
+
+                    try
+                    {
+                        await PublishMessageAsync(exchange: exchange, routingKey: routingKey, queueName: queue, body: body);
+                        await channel.BasicAckAsync(ea.DeliveryTag, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error processing message");
+                    }
+                };
+
+                await channel.BasicConsumeAsync(queue: dlxQueue, autoAck: false, consumer: consumer);
+
+                Console.WriteLine($"Listening on queue: {dlxQueue}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing consumer: {ex.Message}");
+            }
+        }
+
+        public async Task SubscribeToQueueAsync(string queue, Func<string, Task> messageHandler, CancellationToken cancellationToken = default, int maxRetryCount = 5)
         {
             try
             {
@@ -64,16 +115,25 @@ namespace Common.RabbitMQ
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
+                    var header = ea.BasicProperties;
                     Console.WriteLine(message);
                     try
                     {
                         await messageHandler(message);
+                        throw new Exception();
                         await channel.BasicAckAsync(ea.DeliveryTag, false);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error processing message: {ex.Message}");
-                        await channel.BasicNackAsync(ea.DeliveryTag, false, true);
+
+                        Console.WriteLine($"Количество попыток: {GetRetryCound(ea.BasicProperties)}");
+
+                        if (GetRetryCound(ea.BasicProperties) <= maxRetryCount)
+                        {
+                            await channel.BasicNackAsync(ea.DeliveryTag, false, false);
+                        }
+
                     }
                 };
 
@@ -85,6 +145,18 @@ namespace Common.RabbitMQ
             {
                 Console.WriteLine($"Error initializing consumer: {ex.Message}");
             }
+        }
+
+        static int GetRetryCound(IReadOnlyBasicProperties properties)
+        {
+            var headers = properties.Headers;
+            int retryCount = headers != null && headers.ContainsKey("x-death")
+                ? Convert.ToInt32(headers["x-death"])
+                : 0;
+
+            retryCount++;
+
+            return retryCount;
         }
 
 
