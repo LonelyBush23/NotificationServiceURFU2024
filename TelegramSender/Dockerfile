@@ -12,6 +12,9 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+COPY ["Common.RabbitMQ/Common.RabbitMQ.csproj", "Common.RabbitMQ/"]
+
 COPY ["TelegramSender/TelegramSender.csproj", "TelegramSender/"]
 RUN dotnet restore "./TelegramSender/TelegramSender.csproj"
 COPY . .

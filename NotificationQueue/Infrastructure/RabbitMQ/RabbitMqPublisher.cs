@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Common.RabbitMQ;
-using NotificationQueue.Application.Features.Notification;
 using NotificationQueue.Domain.Entities;
 using NotificationQueue.Domain.Enums;
 
@@ -23,10 +22,16 @@ public class RabbitMqPublisher : IRabbitMqPublisher
             throw new ArgumentException($"Invalid channel: {notification.Channel}");
         }
 
-        string routingKey = notification.Channel.ToString();
-        var message = JsonSerializer.Serialize(notification);
-        return await SendMessageAsync(message, routingKey, cancellationToken);
+        var newNotification = new Common.RabbitMQ.Domain.Entities.Notification
+        {
+            Receiver = notification.Receiver,
+            Channel = (Common.RabbitMQ.Domain.Enums.NotificationChannel)notification.Channel,
+            Message = notification.Message,
+        };
 
+        var message = JsonSerializer.Serialize(newNotification);
+        string routingKey = notification.Channel.ToString();
+        return await SendMessageAsync(message, routingKey, cancellationToken);
     }
 
     public async Task<bool> SendMessageAsync(string message, string routingKey, CancellationToken cancellationToken = default)

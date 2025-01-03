@@ -26,7 +26,7 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
 
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+// builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
 var app = builder.Build();

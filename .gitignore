@@ -135,5 +135,4 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
-EmailSender/.env
-TelegramSender/.env
+.env

@@ -1,15 +1,28 @@
+using Common.RabbitMQ;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<Program>();
+});
+
+builder.Services.AddScoped<IPublisher, Publisher>();
+builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddSingleton<RabbitMQSetUp>();
+//builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope()) 
+{
+    var setUp = scope.ServiceProvider.GetRequiredService<RabbitMQSetUp>();
+    await setUp.Configure();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

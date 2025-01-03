@@ -10,6 +10,7 @@ namespace Common.RabbitMQ
         Task SubscribeToQueueAsync(string queue, Func<string, Task> messageHandler, CancellationToken cancellationToken = default, int maxRetryCount = 5);
         Task SubsribeToDLX(string dlxQueue);
         Task PublishMessageAsync(string exchange, string routingKey, string queueName, byte[] body, CancellationToken cancellationToken = default);
+        Task PublishMessageAsync(string exchange, string routingKey, byte[] body, CancellationToken cancellationToken = default);
         Task DisposeAsync();
     }
 }

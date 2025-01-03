@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infrastructure\" />
+    <ProjectReference Include="..\Common.RabbitMQ\Common.RabbitMQ.csproj" />
   </ItemGroup>
 
 </Project>

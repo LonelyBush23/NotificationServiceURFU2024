@@ -23,15 +23,15 @@ public class RabbitMqBackgroundService : BackgroundService
 
         await _rabbitMQService.StartUp(RabbitMQConstants.NotificationExchange, queues, cancellationToken);
 
-        var listeningTasks = queues.Select(queue =>
-            ListenToQueueWithRetriesAsync(queue, cancellationToken)
-        );
+        // var listeningTasks = queues.Select(queue =>
+        //     ListenToQueueWithRetriesAsync(queue, cancellationToken)
+        // );
 
-        var dlxListeting = _rabbitMQService.SubsribeToDLX("DeathLetterQueue");
+        // var dlxListeting = _rabbitMQService.SubsribeToDLX("DeathLetterQueue");
 
-        listeningTasks.Append(dlxListeting);
+        // listeningTasks.Append(dlxListeting);
 
-        await Task.WhenAll(listeningTasks);
+        // await Task.WhenAll(listeningTasks);
     }
     private async Task ListenToQueueWithRetriesAsync(string queue, CancellationToken cancellationToken)
     {

@@ -15,7 +15,8 @@ namespace Common.RabbitMQ
         {
             _factory = new ConnectionFactory()
             {
-                HostName = "localhost",
+                HostName = "rabbitmq",
+                Port = 5672,
                 UserName = "admin",
                 Password = "admin"
             };
@@ -120,7 +121,6 @@ namespace Common.RabbitMQ
                     try
                     {
                         await messageHandler(message);
-                        throw new Exception();
                         await channel.BasicAckAsync(ea.DeliveryTag, false);
                     }
                     catch (Exception ex)
@@ -133,7 +133,6 @@ namespace Common.RabbitMQ
                         {
                             await channel.BasicNackAsync(ea.DeliveryTag, false, false);
                         }
-
                     }
                 };
 
@@ -163,6 +162,14 @@ namespace Common.RabbitMQ
         public async Task PublishMessageAsync(string exchange, string routingKey, string queueName, byte[] body, CancellationToken cancellationToken = default)
         {
             var channel = await GetChannelAsync(cancellationToken);
+            await channel.BasicPublishAsync(exchange, routingKey, body, cancellationToken);
+        }
+
+        public async Task PublishMessageAsync(string exchange, string routingKey, byte[] body, CancellationToken cancellationToken = default)
+        {
+            var channel = await GetChannelAsync(cancellationToken);
+            await channel.ExchangeDeclarePassiveAsync(exchange);
+            await channel.QueueDeclarePassiveAsync(routingKey);
             await channel.BasicPublishAsync(exchange, routingKey, body, cancellationToken);
         }
 
