@@ -1,6 +1,4 @@
-﻿using Common.RabbitMQ;
-using Microsoft.AspNetCore.Http.HttpResults;
-using NotificationQueue.Application.Infrastructure.Cqs;
+﻿using NotificationQueue.Application.Infrastructure.Cqs;
 using NotificationQueue.Application.Result;
 using NotificationQueue.Domain.Enums;
 using NotificationQueue.Infrastructure.RabbitMQ;
@@ -30,7 +28,14 @@ namespace NotificationQueue.Application.Features.Notification
 
         public override async Task<Result.Result> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
         {
-            var result = await _publisher.SendMessageAsync(request, cancellationToken);
+            var notification = new Domain.Entities.Notification
+            {
+                Receiver = request.Receiver,
+                Message = request.Message,
+                Channel = request.Channel
+            };
+
+            var result = await _publisher.SendMessageAsync(notification, cancellationToken);
             return result ? Result.Result.Success() : Result.Result.Error(new ValidationError() { Data = { { nameof(request.Message), "Failed to send a message" } } });
         }
     }

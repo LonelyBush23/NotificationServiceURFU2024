@@ -44,6 +44,7 @@ namespace Common.RabbitMQ
             return _channel;
         }
 
+
         public async Task SubscribeToQueueAsync(string queue, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
         {
             try
@@ -59,14 +60,11 @@ namespace Common.RabbitMQ
                     try
                     {
                         await messageHandler(message);
-                        // сохранение в БД об успехе
                         await channel.BasicAckAsync(ea.DeliveryTag, false);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error processing message: {ex.Message}");
-                        // сохранение в БД об неудаче
-                        // Optionally, you can use BasicNack to requeue or discard the message
                         await channel.BasicNackAsync(ea.DeliveryTag, false, true);
                     }
                 };
@@ -81,11 +79,28 @@ namespace Common.RabbitMQ
             }
         }
 
-        public async Task PublishMessageAsync(string queue, byte[] body, CancellationToken cancellationToken) {
+        public async Task PublishMessageAsync(string queue, byte[] body, CancellationToken cancellationToken = default) {
             var channel = await GetChannelAsync(cancellationToken);
             await DeclareQueueAsync(queue, channel, cancellationToken);
             await channel.BasicPublishAsync("", queue, false, body, cancellationToken);
         }
+
+
+        public async Task PublishMessageAsync(string exchange, string routingKey, byte[] body, CancellationToken cancellationToken = default)
+        {
+            var channel = await GetChannelAsync(cancellationToken);
+            // Объявляем Exchange (если он не существует)
+            await channel.ExchangeDeclareAsync(exchange: exchange, type: "direct", durable: true);
+            // Создаем очередь (временное решение)
+            await DeclareQueueAsync(routingKey, channel, cancellationToken);
+            // Магия перенаправления
+            await channel.QueueBindAsync(queue: routingKey, exchange: exchange, routingKey: routingKey);
+
+            await channel.BasicPublishAsync(exchange, routingKey, body, cancellationToken);
+
+            await Task.CompletedTask; // Условный асинхронный вызов
+        }
+
 
         public async Task DisposeAsync()
         {

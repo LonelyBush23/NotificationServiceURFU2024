@@ -41,16 +41,17 @@ public class RabbitMqBackgroundService : BackgroundService
                 {
                     var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
 
-                    var command = JsonSerializer.Deserialize<SendNotificationCommand>(message);
-                    var notification = new Notification
-                    {
-                        Receiver = command.Receiver,
-                        Message = command.Message,
-                        Channel = command.Channel,
-                        Status = NotificationStatusType.Success,
-                        RetryCount = 1,
-                        CreatedAt = DateTimeOffset.UtcNow
-                    };
+                    var notification = JsonSerializer.Deserialize<Notification>(message);
+                    
+                    //var notification = new Notification
+                    //{
+                    //    Receiver = command.Receiver,
+                    //    Message = command.Message,
+                    //    Channel = command.Channel,
+                    //    Status = NotificationStatusType.Success,
+                    //    RetryCount = 1,
+                    //    CreatedAt = DateTimeOffset.UtcNow
+                    //};
 
                     Console.WriteLine($"Adding to Database: {message}");
 
