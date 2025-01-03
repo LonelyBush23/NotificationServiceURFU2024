@@ -1,26 +1,47 @@
-﻿using RabbitMQ.Client;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json;
+using Common.RabbitMQ;
+using NotificationQueue.Application.Features.Notification;
+using NotificationQueue.Domain.Entities;
+using NotificationQueue.Domain.Enums;
 
-namespace NotificationQueue.Infrastructure.RabbitMQ
+namespace NotificationQueue.Infrastructure.RabbitMQ;
+
+public class RabbitMqPublisher : IRabbitMqPublisher
 {
-    public class RabbitMqPublisher
-    {
-        private readonly IConnectionFactory _connectionFactory;
+    private readonly IRabbitMQService _rabbitMQService;
 
-        public RabbitMqPublisher(IConnectionFactory connectionFactory)
+    public RabbitMqPublisher(IRabbitMQService rabbitMQService)
+    {
+        _rabbitMQService = rabbitMQService;
+    }
+
+    public async Task<bool> SendMessageAsync(Notification notification, CancellationToken cancellationToken = default)
+    {
+        if (!Enum.IsDefined(typeof(NotificationChannel), notification.Channel))
         {
-            _connectionFactory = connectionFactory;
+            throw new ArgumentException($"Invalid channel: {notification.Channel}");
         }
 
-        //public void Publish(string exchange, string routingKey, string message)
-        //{
-        //    using var connection = _connectionFactory.CreateConnection();
-        //    using var channel = connection.CreateModel();
+        string routingKey = notification.Channel.ToString();
+        var message = JsonSerializer.Serialize(notification);
+        return await SendMessageAsync(message, routingKey, cancellationToken);
 
-        //    channel.ExchangeDeclare(exchange, ExchangeType.Direct);
+    }
 
-        //    var body = Encoding.UTF8.GetBytes(message);
-        //    channel.BasicPublish(exchange, routingKey, null, body);
-        //}
+    public async Task<bool> SendMessageAsync(string message, string routingKey, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var body = Encoding.UTF8.GetBytes(message);
+
+            await _rabbitMQService.PublishMessageAsync(RabbitMQConstants.NotificationExchange, routingKey, routingKey, body, cancellationToken);
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

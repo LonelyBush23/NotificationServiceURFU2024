@@ -1,35 +1,22 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
+﻿using Common.RabbitMQ;
 
 namespace NotificationQueue.Infrastructure.RabbitMQ
 {
-    public class RabbitMqConsumer
+    public class RabbitMqConsumer : BackgroundService
     {
-        private readonly IConnectionFactory _connectionFactory;
+        private readonly IRabbitMQService _rabbitMQService;
 
-        public RabbitMqConsumer(IConnectionFactory connectionFactory)
+        public RabbitMqConsumer(IRabbitMQService rabbitMQService)
         {
-            _connectionFactory = connectionFactory;
+            _rabbitMQService = rabbitMQService;
         }
 
-        //public void Consume(string queue, Func<string, Task> onMessageReceived)
-        //{
-        //    using var connection = _connectionFactory.CreateConnection();
-        //    using var channel = connection.CreateModel();
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            var channel = await _rabbitMQService.GetChannelAsync();
+            
+            
 
-        //    channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
-
-        //    var consumer = new AsyncEventingBasicConsumer(channel);
-        //    consumer.Received += async (model, ea) =>
-        //    {
-        //        var body = ea.Body.ToArray();
-        //        var message = Encoding.UTF8.GetString(body);
-
-        //        await onMessageReceived(message);
-        //    };
-
-        //    channel.BasicConsume(queue, autoAck: true, consumer);
-        //}
+        }
     }
 }

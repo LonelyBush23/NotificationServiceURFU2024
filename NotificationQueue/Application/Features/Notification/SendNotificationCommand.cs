@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using NotificationQueue.Application.Infrastructure.Cqs;
+﻿using NotificationQueue.Application.Infrastructure.Cqs;
 using NotificationQueue.Application.Result;
 using NotificationQueue.Domain.Enums;
 using NotificationQueue.Infrastructure.RabbitMQ;
@@ -20,21 +19,24 @@ namespace NotificationQueue.Application.Features.Notification
 
     public sealed class SendNotificationCommandHandler : CommandHandler<SendNotificationCommand>
     {
-        private readonly IMessageQueue _messageQueue;
+        private readonly IRabbitMqPublisher _publisher;
 
-        public SendNotificationCommandHandler(IMessageQueue messageQueue)
+        public SendNotificationCommandHandler(IRabbitMqPublisher publisher)
         {
-            _messageQueue = messageQueue;
+            _publisher = publisher;
         }
 
         public override async Task<Result.Result> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
         {
-            //if (string.IsNullOrWhiteSpace(request.Receiver))
-            //{
-            //    return Error(new ValidationError() { Data = { { nameof(request.Receiver), "Empty value" } } });
-            //}
-            return await _messageQueue.PublishAsync(request, cancellationToken);
+            var notification = new Domain.Entities.Notification
+            {
+                Receiver = request.Receiver,
+                Message = request.Message,
+                Channel = request.Channel
+            };
 
+            var result = await _publisher.SendMessageAsync(notification, cancellationToken);
+            return result ? Result.Result.Success() : Result.Result.Error(new ValidationError() { Data = { { nameof(request.Message), "Failed to send a message" } } });
         }
     }
 
