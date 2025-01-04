@@ -17,6 +17,7 @@ DotNetEnv.Env.Load();
 builder.Services.AddScoped<ITelegramSender, TelegramBotSender>();
 builder.Services.AddScoped<TelegramService>();
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddScoped<IPublisher, Publisher>();
 builder.Services.AddHostedService<RabbitMQListener>();
 
 var app = builder.Build();

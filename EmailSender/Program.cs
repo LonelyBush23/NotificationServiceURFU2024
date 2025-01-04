@@ -18,6 +18,7 @@ DotNetEnv.Env.Load();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddScoped<IPublisher, Publisher>();
 builder.Services.AddHostedService<RabbitMQListener>();
 
 

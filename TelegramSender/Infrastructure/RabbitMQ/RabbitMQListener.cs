@@ -37,14 +37,20 @@ public class RabbitMQListener : BackgroundService
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var telegramService = scope.ServiceProvider.GetRequiredService<ITelegramSender>();
+                    var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+
 
                     Console.WriteLine($"Processing message from {queue}: {message}");
-                
 
-                    var notification = JsonSerializer.Deserialize<Notification>(message) 
+
+                    var notification = JsonSerializer.Deserialize<Notification>(message)
                         ?? throw new ArgumentNullException(nameof(Notification), $"Failed to deserialize message {message}");
 
                     await telegramService.SendMessageAsync(new TelegramMessage(notification.Receiver, notification.Message));
+
+                    notification.SentAt = DateTimeOffset.UtcNow;
+                    await publisher.PublishMessageAsync(notification, Exchange.ProcessedExchange.ToString(), RBQueue.ProcessedQueue.ToString());
+
                     Console.WriteLine($"Message sent: {message}");
                 }
             },

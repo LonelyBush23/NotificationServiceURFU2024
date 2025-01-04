@@ -3,6 +3,7 @@ using Common.RabbitMQ;
 using Common.RabbitMQ.Domain.Entities;
 using Common.RabbitMQ.Domain.Enums;
 using EmailSender.Domain;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EmailSender.Infrastructure.RabbitMQ;
 
@@ -35,13 +36,19 @@ public class RabbitMQListener : BackgroundService
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+                    var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
 
                     Console.WriteLine($"Processing message from {queue}: {message}");
 
                     var notification = JsonSerializer.Deserialize<Notification>(message)
                         ?? throw new ArgumentNullException(nameof(Notification), $"Failed to deserialize message {message}");
-                        
+
                     await emailService.SendAsync(new EmailMessage(notification.Message, notification.Message, notification.Receiver));
+
+                    notification.SentAt = DateTimeOffset.UtcNow;
+
+                    await publisher.PublishMessageAsync(notification, Exchange.ProcessedExchange.ToString(), RBQueue.ProcessedQueue.ToString());
+
                     Console.WriteLine($"Message sent: {message}");
                 }
             },
