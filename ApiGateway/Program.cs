@@ -13,23 +13,9 @@ builder.Services.AddMediatR(x =>
 
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 builder.Services.AddScoped<IPublisher, Publisher>();
-builder.Services.AddSingleton<IConsumer>(sp =>
-{
-    string[] queues = [Queue.DeadLetterQueue.ToString()];
-    var rb = sp.GetRequiredService<IRabbitMQService>();
-    return new Consumer(rb, queues);
-});
+
 builder.Services.AddSingleton<RabbitMQSetUp>();
-builder.Services.AddHostedService(provider => 
-{
-    Func<string, Task> s = async (message) =>
-    {
-        Console.WriteLine($"Processing message from");
-        await ;
-    };
-    var c = provider.GetRequiredService<IConsumer>();
-    return new RabbitMQBackgroundService<string>(c, s);
-});
+
 
 var app = builder.Build();
 

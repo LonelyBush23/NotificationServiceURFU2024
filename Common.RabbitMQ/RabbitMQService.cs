@@ -15,8 +15,8 @@ namespace Common.RabbitMQ
         {
             _factory = new ConnectionFactory()
             {
-                HostName = "localhost",
-                //Port = 5672,
+                HostName = "rabbitmq",
+                Port = 5672,
                 UserName = "admin",
                 Password = "admin"
             };

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Common.RabbitMQ.Domain.Enums
 {
-    public enum Queue
+    public enum RBQueue
     {
         ProcessedQueue,
         DeadLetterQueue,

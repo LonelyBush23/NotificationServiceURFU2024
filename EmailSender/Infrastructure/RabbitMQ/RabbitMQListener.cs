@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Domain.Entities;
+using Common.RabbitMQ.Domain.Enums;
 using EmailSender.Domain;
 
 namespace EmailSender.Infrastructure.RabbitMQ;
@@ -18,7 +19,7 @@ public class RabbitMQListener : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        string queue = "EmailQueue";
+        string queue = RBQueue.EmailQueue.ToString();
 
         var queueListener = ListenToQueueWithRetriesAsync(queue, cancellationToken);
 

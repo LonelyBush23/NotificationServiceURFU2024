@@ -15,9 +15,9 @@ namespace Common.RabbitMQ
         public async Task Configure(CancellationToken cancellationToken = default) 
         {
             var channel = await _rabbitMQService.GetChannelAsync(cancellationToken);
-            await CreateBindDlx(channel, Exchange.DeadLetterExchange.ToString(), Queue.DeadLetterQueue.ToString());
-            await CreateBind(channel, Exchange.ProcessedExchange.ToString(), [Queue.ProcessedQueue.ToString()]);
-            await CreateBind(channel, Exchange.NotificationExchange.ToString(), [Queue.TelegramQueue.ToString(), Queue.EmailQueue.ToString()]);
+            await CreateBindDlx(channel, Exchange.DeadLetterExchange.ToString(), RBQueue.DeadLetterQueue.ToString());
+            await CreateBind(channel, Exchange.ProcessedExchange.ToString(), [RBQueue.ProcessedQueue.ToString()]);
+            await CreateBind(channel, Exchange.NotificationExchange.ToString(), [RBQueue.TelegramQueue.ToString(), RBQueue.EmailQueue.ToString()]);
         }
 
         private async Task CreateBindDlx(IChannel channel, string exchange, string queue, CancellationToken cancellationToken = default) 

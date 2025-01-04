@@ -2,6 +2,7 @@ using System;
 using System.Text.Json;
 using Common.RabbitMQ;
 using Common.RabbitMQ.Domain.Entities;
+using Common.RabbitMQ.Domain.Enums;
 using Telegram.Bot;
 using TelegramSender.Domain;
 
@@ -20,7 +21,7 @@ public class RabbitMQListener : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        string queue = "TelegramQueue";
+        string queue = RBQueue.TelegramQueue.ToString();
 
         var queueListener = ListenToQueueWithRetriesAsync(queue, cancellationToken);
 

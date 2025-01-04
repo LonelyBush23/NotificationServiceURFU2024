@@ -46,10 +46,10 @@ namespace ApiGateway.Application.Features.Notification
             switch (notification.Channel)
             {
                 case NotificationChannel.Telegram:
-                    routingKey = Queue.TelegramQueue.ToString();
+                    routingKey = RBQueue.TelegramQueue.ToString();
                     break;
                 case NotificationChannel.Email:
-                    routingKey = Queue.EmailQueue.ToString();
+                    routingKey = RBQueue.EmailQueue.ToString();
                     break;
             }
 
