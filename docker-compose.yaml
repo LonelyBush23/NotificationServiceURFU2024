@@ -72,5 +72,17 @@ services:
       - rabbitmq
       - apigateway
 
+  notificationqueue: 
+    build:
+      dockerfile: ./NotificationQueue/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - notification_network
+    depends_on:
+      - rabbitmq
+      - apigateway
+      - postgres
+
 volumes:
   postgres_data:

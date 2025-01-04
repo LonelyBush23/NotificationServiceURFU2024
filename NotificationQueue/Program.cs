@@ -1,9 +1,8 @@
-using NotificationQueue.Domain.Repositories;
 using NotificationQueue.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using NotificationQueue.Infrastructure.Repositories;
-using NotificationQueue.Infrastructure.RabbitMQ;
 using Common.RabbitMQ;
+using NotificationQueue.Domain.Repositories;
+using NotificationQueue.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +23,8 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
     config.EnableSensitiveDataLogging();
 });
 
-builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
-// builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
 var app = builder.Build();

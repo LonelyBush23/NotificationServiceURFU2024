@@ -3,7 +3,7 @@ using NotificationQueue.Domain.SharedKernel.Storage;
 
 namespace NotificationQueue.Domain.Repositories
 {
-    public interface INotificationRepository : IRepository<Notification>
+    public interface INotificationRepository : IRepository<ProcessedNotification>
     {
     }
 }

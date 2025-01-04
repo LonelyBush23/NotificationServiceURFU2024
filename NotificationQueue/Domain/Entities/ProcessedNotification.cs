@@ -1,9 +1,10 @@
-﻿using NotificationQueue.Domain.Enums;
+﻿using Common.RabbitMQ.Domain.Enums;
+using NotificationQueue.Domain.Enums;
 using NotificationQueue.Domain.SharedKernel;
 
 namespace NotificationQueue.Domain.Entities
 {
-    public class Notification : Entity<long>, IAggregateRoot
+    public class ProcessedNotification : Entity<long>, IAggregateRoot
     {
         public string Receiver { get; set; }
         public string Message { get; set; }

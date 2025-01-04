@@ -9,7 +9,7 @@ namespace NotificationQueue.Infrastructure
 {
     public class ServerDbContext : DbContext, IUnitOfWork
     {
-        public DbSet<Notification> Notification { get; set; }
+        public DbSet<ProcessedNotification> Notification { get; set; }
 
         public ServerDbContext(DbContextOptions<ServerDbContext> contextOptions) : base(contextOptions)
         {
